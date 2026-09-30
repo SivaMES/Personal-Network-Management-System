@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html><head><base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{--blue:#1f4e9c;--bg:#f3f0ea;--card:#fff;--ink:#1d2433;--mut:#6b7385;--red:#d64545;--grn:#2e9e5b;--amb:#e0a100}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 "Segoe UI",Roboto,sans-serif;padding-bottom:70px}
+header{background:var(--blue);color:#fff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+header b{letter-spacing:.4px;font-size:14px}
+.run{border:0;border-radius:16px;padding:6px 14px;font-weight:600;cursor:pointer;color:#fff}
+.run.on{background:var(--red)}.run.off{background:var(--grn)}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;border-top:1px solid #ddd;z-index:6}
+nav a{flex:1;text-align:center;padding:8px 0;color:var(--mut);font-size:12px;cursor:pointer}
+nav a.on{color:var(--blue);font-weight:700}
+nav a span{display:block;font-size:19px}
+main{padding:12px;max-width:1100px;margin:auto}
+.dash{display:grid;gap:12px;grid-template-columns:1fr}
+.cols{display:grid;gap:10px;grid-template-columns:1fr}
+.cal{background:var(--card);border-radius:14px;padding:10px}
+.bar{display:flex;gap:6px;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid var(--blue);border-radius:16px;overflow:hidden}
+.seg a{padding:5px 14px;cursor:pointer;color:var(--blue);font-weight:600;font-size:13px}
+.seg a.on{background:var(--blue);color:#fff}
+.nv{display:flex;align-items:center;gap:4px}
+.nv button{background:none;border:0;font-size:22px;color:var(--blue);padding:2px 10px;cursor:pointer}
+.nv b{min-width:120px;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;gap:2px}
+.dow{color:var(--mut);font-size:12px;padding:4px 0}
+.day{padding:5px 0 2px;border-radius:10px;cursor:pointer;min-height:42px}
+.day.today{background:var(--blue);color:#fff}
+.day.sel{outline:2px solid var(--blue)}
+.dots{min-height:9px;display:flex;justify-content:center;gap:2px;flex-wrap:wrap}
+.dots i{width:7px;height:7px;border-radius:50%;display:block}
+.dots i.d{background:#fff!important;border:2px solid;width:8px;height:8px}
+.sum{display:flex;gap:14px;font-size:13px;margin:8px 2px 0;flex-wrap:wrap}
+.leg{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:8px}
+.leg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}
+.yr{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mt{background:#f7f8fb;border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;border:1px solid #e3e6ee}
+.mt.cur{border-color:var(--blue);background:#eaf0fb}
+.mt small{display:block;color:var(--mut)}
+.pb{height:5px;background:#e6e8ee;border-radius:3px;margin-top:6px;overflow:hidden}
+.pb u{display:block;height:100%;background:var(--grn)}
+h3{margin:14px 4px 8px;font-size:16px}
+.card{background:var(--card);border-radius:14px;padding:12px;margin-bottom:10px;box-shadow:0 1px 3px #0001;border-left:5px solid #ccd}
+.card.done{background:#f8fbf9}
+.row{display:flex;gap:10px;align-items:center}
+.av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;flex:none}
+.grow{flex:1;min-width:0;word-break:break-word}
+.sub{color:var(--mut);font-size:13px}
+.tag{font-size:11px;border-radius:8px;padding:2px 7px;color:#fff;margin-left:4px;white-space:nowrap}
+.Due{background:var(--red)}.Due-Soon{background:var(--amb)}.Active{background:var(--grn)}.Dormant{background:#8a8f9c}
+.acts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.btn{text-align:center;border:1px solid var(--blue);color:var(--blue);background:#fff;border-radius:20px;padding:9px 4px;font-weight:600;cursor:pointer;white-space:nowrap;font-size:14px}
+.btn.call{background:var(--blue);color:#fff}
+.btn.del{color:var(--red);border-color:var(--red)}
+.fab{position:fixed;right:16px;bottom:78px;width:52px;height:52px;border-radius:50%;background:var(--blue);color:#fff;font-size:28px;border:0;box-shadow:0 3px 8px #0004;z-index:6}
+.modal{position:fixed;inset:0;background:#0007;display:none;align-items:flex-end;justify-content:center;z-index:10}
+.modal.show{display:flex}
+.sheet{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px}
+.sheet label{display:block;font-size:12px;color:var(--mut);margin-top:10px}
+.sheet input,.sheet select,.sheet textarea,input[type=search]{width:100%;padding:9px;border:1px solid #ccd;border-radius:8px;font:inherit}
+input[type=search]{margin-bottom:10px;border-radius:10px;padding:10px}
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:16px;display:none;z-index:20}
+.modal.center{align-items:center}.sheet.mini{max-width:340px;border-radius:18px;margin:12px}
+.pick{display:flex;align-items:center;gap:12px;width:100%;padding:14px;margin-top:10px;border:1px solid #dde;border-radius:14px;background:#fff;font:inherit;font-weight:600;cursor:pointer;text-align:left}.pick span{font-size:24px}
+.hist{border-top:1px solid #eee;padding:8px 0}
+@media(min-width:520px){.acts{grid-template-columns:repeat(4,1fr)}.yr{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:900px){
+  body{padding-bottom:0}
+  header b{font-size:17px}
+  nav{position:static;border:0;border-bottom:1px solid #ddd;justify-content:center;gap:10px}
+  nav a{flex:none;padding:12px 26px;font-size:14px}
+  nav a span{display:inline;margin-right:6px;font-size:16px}
+  nav a.on{box-shadow:inset 0 -3px 0 var(--blue)}
+  main{padding:18px}
+  .dash{grid-template-columns:minmax(380px,460px) 1fr;align-items:start}
+  .dash .left{position:sticky;top:12px}
+  .cols{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
+  .day{min-height:54px}
+  .fab{bottom:24px;right:24px}
+  .modal{align-items:center}.sheet{border-radius:18px}
+}
+</style></head>
+<body>
+<header><b>PERSONAL NETWORK SYSTEM</b><button id="run" class="run off" onclick="toggleAuto()">Start</button></header>
+<nav id="nav">
+  <a data-t="dash" class="on"><span>🏠</span>Dashboard</a>
+  <a data-t="contacts"><span>👥</span>Contacts</a>
+  <a data-t="props"><span>🏡</span>Properties</a>
+  <a data-t="log"><span>📝</span>Log</a>
+</nav>
+<main id="main">Loading…</main>
+<button class="fab" onclick="addMenu()">+</button>
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+var D={contacts:[],properties:[],activity:[],auto:false,today:''}, tab='dash', view='month', Y, M, SEL, EV={}, pending=null, busy=false, formReq=null, showDone=false;
+function dmy(s){var a=String(s||'').split('-');return a.length===3?a[2]+'/'+a[1]+'/'+a[0]:s}
+function newReq(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+var F={
+  Contacts:['Name','Category','Relationship','Company','Role','Phone','Email','City','Last Contact','Next Contact','Status','Priority','Stage','Birthday','Preferred Method','Notes'],
+  Properties:['Property','Owner/Relation','Location','Type','Current Status','Last Verified','Next Review','Document Status','Photo Status','Approx Value','Tax Status','Notes']
+};
+var OPT={
+  Category:['Family','Friend','Professional','Mentor'],
+  Relationship:['Relative','Client','Friend','Mentor','Colleague','Other'],
+  Status:['Active','Due Soon','Due','Dormant'],
+  Priority:['High','Medium','Low'],
+  Stage:['New connection','Growing','Close','Reconnect','Active opportunity','Dormant'],
+  'Preferred Method':['Call','Message','Email','LinkedIn','Meeting'],
+  Type:['House','Land','Flat','Shop','Other'],
+  'Document Status':['Verified','Pending','Missing'],
+  'Photo Status':['Updated','Outdated','None'],
+  Activity:['Phone call','Message','LinkedIn','Meeting','Email'],
+  Outcome:['Contacted','Discussed','Liked','Good','No response','Follow-up needed']
+};
+/* colour by relationship */
+var RC={Relative:'#e4572e',Client:'#2b6cd4',Friend:'#2e9e5b',Mentor:'#8e44ad',Colleague:'#0e9aa7',Other:'#7b8190'};
+var CAT2REL={Family:'Relative',Professional:'Client',Friend:'Friend',Mentor:'Mentor'};
+var PROP='#e0a100';
+var MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var $=function(s){return document.querySelector(s)};
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function pad(n){return n<10?'0'+n:n}
+function iso(y,m,d){return y+'-'+pad(m+1)+'-'+pad(d)}
+function toast(t){var e=$('#toast');e.textContent=t;e.style.display='block';setTimeout(function(){e.style.display='none'},1800)}
+function relOf(c){return (c&&(c.Relationship&&RC[c.Relationship]?c.Relationship:CAT2REL[c.Category]))||'Other'}
+function colOf(c){return RC[relOf(c)]}
+function byName(n){return D.contacts.filter(function(x){return x.Name===n})[0]}
+function rowOf(r){return D.contacts.filter(function(x){return x._row==r})[0]}
+
+function load(){
+  google.script.run.withSuccessHandler(function(d){D=d;
+    if(Y==null){var t=d.today.split('-');Y=+t[0];M=+t[1]-1;SEL=d.today}
+    render();
+  }).withFailureHandler(function(e){$('#main').textContent='Error: '+e.message+' - run Network System > Setup sheets first.'}).getData();
+}
+function done(d){D=d;render();closeModal();toast('Saved')}
+
+/* build date -> items (pending / completed) */
+function build(){
+  EV={};
+  function add(k,e){if(k)(EV[k]=EV[k]||[]).push(e)}
+  D.contacts.forEach(function(c){add(c['Next Contact'],{t:'p',k:'c',o:c,col:colOf(c)})});
+  D.properties.forEach(function(p){add(p['Next Review'],{t:'p',k:'r',o:p,col:PROP})});
+  D.activity.forEach(function(a){var c=byName(a.Contact);add(a.Date,{t:'d',k:'a',o:a,c:c,col:c?colOf(c):RC.Other})});
+}
+function itemsIn(prefix){
+  var out=[];Object.keys(EV).sort().forEach(function(k){if(k.indexOf(prefix)===0)EV[k].forEach(function(e){e.d=k;out.push(e)})});return out;
+}
+function count(prefix){var p=0,d=0;itemsIn(prefix).forEach(function(e){e.t==='p'?p++:d++});return {p:p,d:d}}
+
+function legend(){
+  var h='<div class="leg">';
+  ['Relative','Client','Friend','Mentor'].forEach(function(r){h+='<span><i style="background:'+RC[r]+'"></i>'+r+'</span>'});
+  h+='<span><i style="background:'+PROP+'"></i>Property</span><span><i style="background:#fff;border:2px solid #555"></i>Completed</span><span><i style="background:#555"></i>Pending</span></div>';
+  return h;
+}
+function calendar(){
+  var seg='<div class="seg"><a class="'+(view==='month'?'on':'')+'" onclick="view=\'month\';render()">Month</a><a class="'+(view==='year'?'on':'')+'" onclick="view=\'year\';render()">Year</a></div>';
+  var nav=view==='month'
+    ?'<div class="nv"><button onclick="mv(-1)">‹</button><b>'+MN[M]+' '+Y+'</b><button onclick="mv(1)">›</button></div>'
+    :'<div class="nv"><button onclick="Y--;render()">‹</button><b>'+Y+'</b><button onclick="Y++;render()">›</button></div>';
+  var h='<div class="cal"><div class="bar">'+seg+'<a class="btn" style="padding:5px 12px" onclick="goToday()">Today</a></div><div class="bar" style="justify-content:center">'+nav+'</div>';
+  if(view==='month'){
+    var first=new Date(Y,M,1).getDay(), n=new Date(Y,M+1,0).getDate(), g='';
+    ['S','M','T','W','T','F','S'].forEach(function(d){g+='<div class="dow">'+d+'</div>'});
+    for(var i=0;i<first;i++)g+='<div></div>';
+    for(var d=1;d<=n;d++){
+      var k=iso(Y,M,d), ev=EV[k]||[];
+      var dots=ev.slice(0,4).map(function(e){return '<i class="'+(e.t==='d'?'d':'')+'" style="background:'+e.col+';border-color:'+e.col+'"></i>'}).join('');
+      g+='<div class="day'+(k===D.today?' today':'')+(k===SEL?' sel':'')+'" onclick="SEL=\''+k+'\';render()">'+d+'<div class="dots">'+dots+'</div></div>';
+    }
+    var c=count(Y+'-'+pad(M+1));
+    h+='<div class="grid">'+g+'</div><div class="sum"><b style="color:var(--grn)">✔ Completed '+c.d+'</b><b style="color:var(--red)">⏳ Pending '+c.p+'</b><a onclick="SEL=null;render()" style="color:var(--blue);cursor:pointer;font-weight:600">Show whole month</a></div>';
+  }else{
+    var t='';
+    for(var m=0;m<12;m++){
+      var c2=count(Y+'-'+pad(m+1)), tot=c2.p+c2.d, pct=tot?Math.round(c2.d*100/tot):0;
+      t+='<div class="mt'+(D.today.indexOf(Y+'-'+pad(m+1))===0?' cur':'')+'" onclick="M='+m+';view=\'month\';SEL=null;render()"><b>'+MN[m].slice(0,3)+'</b><small style="color:var(--grn)">✔ '+c2.d+'</small><small style="color:var(--red)">⏳ '+c2.p+'</small><div class="pb"><u style="width:'+pct+'%"></u></div></div>';
+    }
+    var cy=count(String(Y));
+    h+='<div class="yr">'+t+'</div><div class="sum"><b style="color:var(--grn)">✔ Completed '+cy.d+'</b><b style="color:var(--red)">⏳ Pending '+cy.p+'</b></div>';
+  }
+  return h+legend()+'</div>';
+}
+function mv(x){M+=x;if(M<0){M=11;Y--}if(M>11){M=0;Y++}SEL=null;render()}
+function goToday(){var t=D.today.split('-');Y=+t[0];M=+t[1]-1;SEL=D.today;view='month';render()}
+
+function tagRel(c){return '<span class="tag" style="background:'+colOf(c)+'">'+esc(relOf(c))+'</span>'}
+function contactCard(c,acts,date){
+  var st=(c.Status||'').replace(' ','-'), col=colOf(c);
+  var tel=c.Phone?'<a class="btn call" onclick="callNow('+c._row+')">📞 Call</a>':'<a class="btn" onclick="editRow(\'Contacts\','+c._row+')">Add phone</a>';
+  var sms=c.Phone?'<a class="btn" onclick="smsNow('+c._row+')">Message</a>':'<span></span>';
+  return '<div class="card" style="border-left-color:'+col+'"><div class="row"><div class="av" style="background:'+col+'">'+esc((c.Name||'?')[0])+'</div><div class="grow"><b style="cursor:pointer" onclick="openHist('+c._row+')">'+esc(c.Name)+'</b>'+tagRel(c)+'<span class="tag '+st+'">'+esc(c.Status)+'</span>'
+   +'<div class="sub">'+esc(c.Priority)+' priority · Next '+esc(c['Next Contact'])+(c.Company?' · '+esc(c.Company):'')+(c.Phone?'<br>'+esc(c.Phone):'')+(c['Last Contact']?'<br>Last: '+esc(c['Last Outcome']||'Contacted')+' · '+dmy(c['Last Contact'])+' '+esc(c['Last Contact Time']):'')+'</div></div></div>'
+   +(acts?'<div class="acts">'+tel+sms+'<a class="btn" onclick="openLog('+c._row+')">Update</a><a class="btn" onclick="editRow(\'Contacts\','+c._row+')">Edit</a></div>':'')+'</div>';
+}
+function doneCard(e){
+  var a=e.o;
+  return '<div class="card done" style="border-left-color:'+e.col+'"><div class="row"><div class="av" style="background:'+e.col+'">✔</div><div class="grow"><b>'+esc(a.Contact)+'</b>'+(e.c?tagRel(e.c):'')+'<div class="sub">'+dmy(a.Date)+' '+esc(a.Time)+' · '+esc(a.Activity)+(a.Duration?' · '+esc(a.Duration):'')+'</div><div class="sub">'+esc(a.Outcome)+(a['Next Action']?' → '+esc(a['Next Action']):'')+'</div></div></div></div>';
+}
+function propCard(p){
+  return '<div class="card" style="border-left-color:'+PROP+'" onclick="editRow(\'Properties\','+p._row+')"><b>🏡 '+esc(p.Property)+'</b> <span class="sub">('+esc(p['Owner/Relation'])+')</span><div class="sub">Next review: '+esc(p['Next Review'])+' · Documents: '+esc(p['Document Status'])+'</div></div>';
+}
+function block(items){
+  var p=items.filter(function(e){return e.t==='p'}), d=items.filter(function(e){return e.t==='d'});
+  var h='<h3 style="color:var(--red)">⏳ Pending ('+p.length+')</h3>'+(p.map(function(e){return e.k==='c'?contactCard(e.o,true):propCard(e.o)}).join('')||'<div class="sub" style="margin:0 4px">Nothing pending.</div>');
+  h+='<h3 style="color:var(--grn);cursor:pointer" onclick="showDone=!showDone;render()">✔ Completed ('+d.length+') <span class="sub">'+(d.length?(showDone?'▾ hide':'▸ tap to view'):'')+'</span></h3>'+(showDone?(d.map(doneCard).join('')||'<div class="sub" style="margin:0 4px">Nothing completed.</div>'):'');
+  return h;
+}
+
+function render(){
+  build();
+  var m=$('#main'), h='';
+  document.querySelectorAll('nav a').forEach(function(a){a.classList.toggle('on',a.dataset.t===tab)});
+  var r=$('#run');r.textContent=D.auto?'Stop':'Start';r.className='run '+(D.auto?'on':'off');
+  if(tab==='dash'){
+    var prefix=view==='year'?String(Y):(SEL||Y+'-'+pad(M+1));
+    var title=view==='year'?'Year '+Y:(SEL?(SEL===D.today?'Today · ':'')+SEL:MN[M]+' '+Y);
+    var right='<h3 style="margin-top:0;font-size:18px">'+title+'</h3>'+block(itemsIn(prefix));
+    if(D.today.indexOf(prefix)!==0){
+      var att=D.contacts.filter(function(c){return c.Status==='Due'||c.Status==='Due Soon'});
+      if(att.length)right+='<h3>Needs attention now ('+att.length+')</h3>'+att.map(function(c){return contactCard(c,true)}).join('');
+    }
+    h='<div class="dash"><section class="left">'+calendar()+'</section><section>'+right+'</section></div>';
+  }else if(tab==='contacts'){
+    h='<input type="search" placeholder="Search name, company, city, relationship" oninput="filt(this.value)"><div class="cols" id="list"></div>';m.innerHTML=h;filt('');return;
+  }else if(tab==='props'){
+    h='<div class="cols">'+(D.properties.map(propCard).join('')||'<div class="sub">No properties yet. Tap + to add.</div>')+'</div>';
+  }else{
+    h='<div class="cols">'+(D.activity.map(function(a){var c=byName(a.Contact);return doneCard({o:a,c:c,col:c?colOf(c):RC.Other})}).join('')||'<div class="sub">No activity logged yet.</div>')+'</div>';
+  }
+  m.innerHTML=h;
+}
+function filt(q){
+  q=q.toLowerCase();
+  $('#list').innerHTML=D.contacts.filter(function(c){return (c.Name+c.Company+c.City+c.Category+relOf(c)).toLowerCase().indexOf(q)>-1}).map(function(c){return contactCard(c,true)}).join('')||'<div class="sub">No matches.</div>';
+}
+
+/* popup helpers: one request id per open form + busy lock = no duplicate saves */
+function openModal(html,mini){formReq=newReq();busy=false;$('#sheet').className='sheet'+(mini?' mini':'');$('#modal').className='modal show'+(mini?' center':'');$('#sheet').innerHTML=html}
+function closeModal(){$('#modal').classList.remove('show')}
+function lock(){if(busy)return false;busy=true;var b=$('#saveBtn');if(b){b.textContent='Saving…';b.style.opacity=.6}return true}
+function unlock(){busy=false;var b=$('#saveBtn');if(b){b.textContent='Save';b.style.opacity=1}}
+function fail(e){unlock();toast('Not saved: '+(e&&e.message||'error'))}
+function btns(save,extra){return '<div class="acts"><a class="btn call" id="saveBtn" onclick="'+save+'">Save</a>'+(extra||'')+'<a class="btn" onclick="closeModal()">Cancel</a></div>'}
+
+/* small "+" popup: choose what to add */
+function addMenu(){
+  openModal('<b>What do you want to add?</b>'
+   +'<button class="pick" onclick="editRow(\'Contacts\')"><span>👤</span>New contact</button>'
+   +'<button class="pick" onclick="openLog(null)"><span>📝</span>Log call / meeting</button>'
+   +'<button class="pick" onclick="editRow(\'Properties\')"><span>🏡</span>New property</button>'
+   +'<div class="acts" style="grid-template-columns:1fr"><a class="btn" onclick="closeModal()">Cancel</a></div>',true);
+}
+/* add / edit contact or property */
+function editRow(sheet,row){
+  var src=sheet==='Contacts'?D.contacts:D.properties;
+  var o=row?src.filter(function(x){return x._row==row})[0]:{};
+  var h='<b>'+(row?'Edit ':'New ')+(sheet==='Contacts'?'contact':'property')+'</b>';
+  F[sheet].forEach(function(f){
+    var v=o[f]||'', opts=OPT[f], isDate=/Last Contact|Next Contact|Birthday|Last Verified|Next Review/.test(f);
+    h+='<label>'+f+'</label>';
+    if(opts)h+='<select data-f="'+f+'"><option></option>'+opts.map(function(x){return '<option'+(x===v?' selected':'')+'>'+x+'</option>'}).join('')+'</select>';
+    else if(f==='Notes')h+='<textarea data-f="'+f+'" rows="2">'+esc(v)+'</textarea>';
+    else h+='<input data-f="'+f+'" type="'+(isDate?'date':f==='Phone'?'tel':'text')+'" value="'+esc(v)+'">';
+  });
+  h+=btns('save(\''+sheet+'\','+(row||0)+')',row?'<a class="btn del" onclick="del(\''+sheet+'\','+row+')">Delete</a>':'');
+  openModal(h);
+  if(o.ID)$('#sheet').dataset.id=o.ID;else delete $('#sheet').dataset.id;
+}
+function save(sheet,row){
+  if(busy)return;
+  var o={reqId:formReq};document.querySelectorAll('#sheet [data-f]').forEach(function(e){o[e.dataset.f]=e.value});
+  if(!(sheet==='Contacts'?o.Name:o.Property))return toast('Name is required');
+  if(!lock())return;
+  if(row){o._row=row;o.ID=$('#sheet').dataset.id}
+  google.script.run.withSuccessHandler(function(res){
+    var arr=sheet==='Contacts'?D.contacts:D.properties, t=row?arr.filter(function(x){return x._row==row})[0]:null;
+    if(!t){t={};arr.push(t)}
+    for(var k in o)if(k!=='reqId')t[k]=o[k];
+    t._row=res.row;t.ID=res.ID;if(res.Status!=null)t.Status=res.Status;
+    busy=false;closeModal();render();toast('Saved ✔');
+  }).withFailureHandler(fail).saveRow(sheet,o);
+}
+function del(sheet,row){
+  if(busy||!confirm('Delete this entry?'))return;
+  busy=true;
+  google.script.run.withSuccessHandler(function(){
+    var k=sheet==='Contacts'?'contacts':'properties';
+    D[k]=D[k].filter(function(x){return x._row!=row});D[k].forEach(function(x){if(x._row>row)x._row--});
+    busy=false;closeModal();render();toast('Deleted');
+  }).withFailureHandler(fail).deleteRow(sheet,row,formReq);
+}
+
+/* call / message: top-level navigation works from the Apps Script iframe */
+function cleanNum(n){return String(n).replace(/[^\d+]/g,'')}
+function go(url){try{window.top.location.href=url}catch(e){window.open(url,'_top')}}
+function rowOf(r){return D.contacts.filter(function(x){return x._row==r})[0]}
+function callNow(r){pending={r:r,t:Date.now(),call:1};go('tel:'+cleanNum(rowOf(r).Phone))}
+function smsNow(r){pending={r:r,t:Date.now()};go('sms:'+cleanNum(rowOf(r).Phone))}
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden||!pending)return;
+  var p=pending,s=(Date.now()-p.t)/1000;pending=null;
+  if(s>10)setTimeout(function(){openLog(p.r,p.call?Math.max(1,Math.round(s/60))+' min':'')},400);
+});
+
+/* log / update: date + time are stamped on the server the moment you save */
+function openLog(r,dur){
+  var c=r?rowOf(r):null;
+  var h='<b>'+(c?'Update: '+esc(c.Name):'Log call / meeting')+'</b><div class="sub">'+new Date().toLocaleString([],{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})+'</div>';
+  if(!c)h+='<label>Contact</label><select id="lCon">'+D.contacts.map(function(x){return '<option value="'+x._row+'">'+esc(x.Name)+'</option>'}).join('')+'</select>';
+  h+='<label>Activity</label><select id="lAct">'+OPT.Activity.map(function(x){return '<option>'+x+'</option>'}).join('')+'</select>'
+   +'<label>Outcome</label><select id="lOut">'+OPT.Outcome.map(function(x){return '<option>'+x+'</option>'}).join('')+'</select>'
+   +'<label>Duration</label><input id="lDur" value="'+esc(dur||'')+'" placeholder="e.g. 10 min">'
+   +'<label>Next follow-up date (blank = auto by priority)</label><input id="lNext" type="date">'
+   +'<label>Next action</label><input id="lNA" placeholder="Call next month">'+btns('saveLog('+(r||0)+')');
+  openModal(h);
+}
+function saveLog(r){
+  if(busy)return;
+  var c=rowOf(r||($('#lCon')&&$('#lCon').value));
+  if(!c)return toast('Add a contact first');
+  if(!lock())return;
+  var o={reqId:formReq,Row:c._row,Contact:c.Name,Category:c.Category,Activity:$('#lAct').value,Duration:$('#lDur').value,Outcome:$('#lOut').value,'Next Action':$('#lNA').value,Next:$('#lNext').value};
+  google.script.run.withSuccessHandler(function(res){
+    D.activity.unshift({Date:res.date,Time:res.time,Contact:c.Name,Category:c.Category,Activity:o.Activity,Duration:o.Duration,Outcome:o.Outcome,'Next Action':o['Next Action']});
+    c['Last Contact']=res.date;c['Last Contact Time']=res.time;c['Last Outcome']=o.Outcome;
+    if(res.next){c['Next Contact']=res.next;c.Status=res.status}
+    busy=false;closeModal();render();toast('Saved ✔ '+res.time);
+  }).withFailureHandler(fail).logActivity(o);
+}
+/* full history of one contact */
+function openHist(r){
+  var c=rowOf(r),a=D.activity.filter(function(x){return x.Contact===c.Name});
+  openModal('<b>'+esc(c.Name)+' · History ('+a.length+')</b>'+(a.map(function(x){return '<div class="hist"><b>'+dmy(x.Date)+' '+esc(x.Time)+'</b> · '+esc(x.Activity)+'<div class="sub">'+esc(x.Outcome)+(x.Duration?' · '+esc(x.Duration):'')+(x['Next Action']?' → '+esc(x['Next Action']):'')+'</div></div>'}).join('')||'<div class="sub">No history yet.</div>')
+   +'<div class="acts" style="grid-template-columns:1fr"><a class="btn" onclick="closeModal()">Close</a></div>');
+}
+/* start / stop */
+function toggleAuto(){
+  var f=D.auto?'stopAuto':'startAuto';
+  google.script.run.withSuccessHandler(function(on){D.auto=on;render();toast(on?'Auto status started (daily 6 AM)':'Auto status stopped')})[f]();
+}
+document.querySelectorAll('nav a').forEach(function(a){a.onclick=function(){tab=a.dataset.t;render()}});
+load();
+</script>
+</body></html>
